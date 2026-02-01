@@ -321,10 +321,10 @@ cd /workspace/ComfyUI
 hf auth login --token "$HF_TOKEN"
 hf download LiVeen/MISC --local-dir .
 rm -rf .cache/
-#hf download LiVeen/LTX --local-dir .
-#rm -rf .cache/
-#hf download LiVeen/KLEIN --local-dir .
-#rm -rf .cache/
+hf download LiVeen/LTX --local-dir .
+rm -rf .cache/
+hf download LiVeen/KLEIN --local-dir .
+rm -rf .cache/
 
 echo "removing .cache folders to save space"
 cd /workspace
