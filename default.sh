@@ -18,38 +18,6 @@ PIP_PACKAGES=(
 NODES=(
     #"https://github.com/ltdrdata/ComfyUI-Manager"
     #"https://github.com/cubiq/ComfyUI_essentials"
-    "https://github.com/MoonGoblinDev/Civicomfy"
-    "https://github.com/city96/ComfyUI-GGUF"
-    "https://github.com/kijai/ComfyUI-KJNodes"
-    "https://github.com/Comfy-Org/ComfyUI-Manager"
-    "https://github.com/yuvraj108c/ComfyUI-Video-Depth-Anything"
-    "https://github.com/kijai/ComfyUI-WanVideoWrapper"
-    "https://github.com/kijai/ComfyUI-segment-anything-2"
-    "https://github.com/ai-shizuka/ComfyUI-tbox"
-    "https://github.com/Azornes/Comfyui-Resolution-Master"
-    "https://github.com/melMass/comfy_mtb"
-    "https://github.com/pythongosssss/ComfyUI-Custom-Scripts"
-    "https://github.com/yolain/ComfyUI-Easy-Use"
-    "https://github.com/ltdrdata/ComfyUI-Inspire-Pack"
-    "https://github.com/1038lab/ComfyUI-RMBG"
-    "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
-    "https://github.com/Fannovel16/comfyui_controlnet_aux"
-    "https://github.com/cubiq/ComfyUI_essentials"
-    "https://github.com/chflame163/ComfyUI_LayerStyle"
-    "https://github.com/TinyTerra/ComfyUI_tinyterraNodes"
-    "https://github.com/Derfuu/Derfuu_ComfyUI_ModdedNodes"
-    "https://github.com/jags111/efficiency-nodes-comfyui"
-    "https://github.com/rgthree/rgthree-comfy"
-    "https://github.com/WASasquatch/was-node-suite-comfyui"
-    "https://github.com/djbielejeski/a-person-mask-generator"
-    "https://github.com/Fannovel16/ComfyUI-Frame-Interpolation"
-    "https://github.com/calcuis/gguf"
-    "https://github.com/pollockjj/ComfyUI-MultiGPU"
-    "https://github.com/1038lab/ComfyUI-QwenVL"
-    "https://github.com/kijai/ComfyUI-SCAIL-Pose"
-    "https://github.com/kijai/ComfyUI-WanAnimatePreprocess"
-    "https://github.com/ClownsharkBatwing/RES4LYF"
-    "https://github.com/Lightricks/ComfyUI-LTXVideo"
 )
 
 WORKFLOWS=(
@@ -80,18 +48,8 @@ CONTROLNET_MODELS=(
 function provisioning_start() {
     provisioning_print_header
     provisioning_get_apt_packages
-    rm -rf /workspace/ComfyUI/custom_nodes/ComfyUI-Manager/
-    rm -rf /workspace/ComfyUI/custom_nodes/Civicomfy/
-    rm -rf /workspace/ComfyUI/custom_nodes/ComfyUI-KJNodes/
     provisioning_get_nodes
     provisioning_get_pip_packages
-    cd /workspace/ComfyUI
-    git config --global --add safe.directory /workspace/ComfyUI
-    git checkout master
-    git pull
-    pip install -U pip setuptools wheel pip-tools build git huggingface-hub
-    pip install -U -r /workspace/ComfyUI/requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
-    pip install -r /workspace/ComfyUI/manager_requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
     provisioning_get_files \
         "${COMFYUI_DIR}/models/checkpoints" \
         "${CHECKPOINT_MODELS[@]}"
@@ -110,18 +68,6 @@ function provisioning_start() {
     provisioning_get_files \
         "${COMFYUI_DIR}/models/esrgan" \
         "${ESRGAN_MODELS[@]}"
-    rm -rf /workspace/ComfyUI/models/checkpoints/*.safetensors
-    pip install flash-attn --no-build-isolation
-    pip install sageattention --no-build-isolation
-    pip install -r /workspace/ComfyUI/requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
-    pip install -r /workspace/ComfyUI/manager_requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
-    pip cache purge
-    rm -rf /workspace/ComfyUI/user/default/comfy.settings.json
-    rm -rf /workspace/ComfyUI/comfy_extras/nodes_qwen.py
-    cd /workspace/ComfyUI
-    hf auth login --token "$HF_TOKEN"
-    hf download LiVeen/MISC --local-dir .
-    rm -rf .cache/
     provisioning_print_end
 }
 
@@ -141,7 +87,7 @@ function provisioning_get_nodes() {
     for repo in "${NODES[@]}"; do
         dir="${repo##*/}"
         path="${COMFYUI_DIR}/custom_nodes/${dir}"
-        requirements="${path}/requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4"
+        requirements="${path}/requirements.txt"
         if [[ -d $path ]]; then
             if [[ ${AUTO_UPDATE,,} != "false" ]]; then
                 printf "Updating node: %s...\n" "${repo}"
@@ -234,3 +180,179 @@ function provisioning_download() {
 if [[ ! -f /.noprovisioning ]]; then
     provisioning_start
 fi
+
+echo "BEGINNING COMFYUI SLIM INSTALL SCRIPT"
+
+echo "installing/updating basic tooling"
+pip install -U pip setuptools wheel pip-tools build git
+
+echo "installing huggingface hub"
+pip install huggingface-hub
+
+echo "logging in to huggingface hub"
+hf auth login --token "$HF_TOKEN"
+
+echo "updating ComfyUI"
+cd /workspace/ComfyUI
+git config --global --add safe.directory /workspace/ComfyUI
+git checkout master
+git pull
+echo "updated ComfyUI to latest version"
+
+echo "installing base requirements"
+pip install -U -r /workspace/ComfyUI/requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
+pip install -r /workspace/ComfyUI/manager_requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
+echo "finished installing base requirements"
+
+echo "removing bloat model files to save space"
+rm -rf /workspace/ComfyUI/models/checkpoints/*.safetensors
+
+echo "cloning comfyui custom nodes"
+cd /workspace/ComfyUI/custom_nodes
+rm -rf ComfyUI-Manager/
+rm -rf Civicomfy/
+rm -rf ComfyUI-KJNodes/
+git clone https://github.com/MoonGoblinDev/Civicomfy
+git clone https://github.com/city96/ComfyUI-GGUF
+git clone https://github.com/kijai/ComfyUI-KJNodes
+git clone https://github.com/Comfy-Org/ComfyUI-Manager
+git clone https://github.com/yuvraj108c/ComfyUI-Video-Depth-Anything
+git clone https://github.com/kijai/ComfyUI-WanVideoWrapper
+git clone https://github.com/kijai/ComfyUI-segment-anything-2
+git clone https://github.com/ai-shizuka/ComfyUI-tbox
+git clone https://github.com/Azornes/Comfyui-Resolution-Master
+git clone https://github.com/melMass/comfy_mtb
+git clone https://github.com/pythongosssss/ComfyUI-Custom-Scripts
+git clone https://github.com/yolain/ComfyUI-Easy-Use
+# git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack
+git clone https://github.com/ltdrdata/ComfyUI-Inspire-Pack
+git clone https://github.com/1038lab/ComfyUI-RMBG
+git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite
+git clone https://github.com/Fannovel16/comfyui_controlnet_aux
+git clone https://github.com/cubiq/ComfyUI_essentials
+git clone https://github.com/chflame163/ComfyUI_LayerStyle
+git clone https://github.com/TinyTerra/ComfyUI_tinyterraNodes
+git clone https://github.com/Derfuu/Derfuu_ComfyUI_ModdedNodes
+git clone https://github.com/jags111/efficiency-nodes-comfyui
+git clone https://github.com/rgthree/rgthree-comfy
+git clone https://github.com/WASasquatch/was-node-suite-comfyui
+git clone https://github.com/djbielejeski/a-person-mask-generator
+git clone https://github.com/Fannovel16/ComfyUI-Frame-Interpolation
+git clone https://github.com/calcuis/gguf
+# git clone https://github.com/pollockjj/ComfyUI-MultiGPU
+git clone https://github.com/1038lab/ComfyUI-QwenVL
+git clone https://github.com/kijai/ComfyUI-SCAIL-Pose
+git clone https://github.com/kijai/ComfyUI-WanAnimatePreprocess/
+git clone https://github.com/ClownsharkBatwing/RES4LYF
+git clone https://github.com/Lightricks/ComfyUI-LTXVideo
+
+echo "installing custom nodes requirements"
+pip install -r /workspace/ComfyUI/custom_nodes/Civicomfy/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-GGUF/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-KJNodes/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-Manager/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-Video-Depth-Anything/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-WanVideoWrapper/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-segment-anything-2/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-tbox/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/Comfyui-Resolution-Master/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/comfy_mtb/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-Custom-Scripts/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-Easy-Use/requirements.txt
+# pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-Impact-Pack/requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-Inspire-Pack/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-RMBG/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-VideoHelperSuite/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/comfyui_controlnet_aux/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI_essentials/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI_LayerStyle/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI_tinyterraNodes/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/Derfuu_ComfyUI_ModdedNodes/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/efficiency-nodes-comfyui/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/rgthree-comfy/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/was-node-suite-comfyui/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/a-person-mask-generator/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-Frame-Interpolation/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/gguf/requirements.txt
+# pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-MultiGPU/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-QwenVL/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-SCAIL-Pose/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-WanAnimatePreprocess/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/RES4LYF/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-LTXVideo/requirements.txt
+cd /workspace
+echo "finished installing custom nodes requirements"
+
+echo "installing flash-attention 2 with --no-build-isolation"
+pip install flash-attn --no-build-isolation
+echo "finished installing flash-attention 2"
+
+echo "installing sageattention with --no-build-isolation"
+pip install sageattention --no-build-isolation
+echo "finished installing sageattention"
+
+echo "reinstalling numpy to ensure compatibility"
+pip install numpy==1.26.4
+echo "finished reinstalling numpy"
+
+echo "installing base requirements again to ensure all dependencies are met"
+pip install -r /workspace/ComfyUI/requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
+pip install -r /workspace/ComfyUI/manager_requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4
+echo "finished installing base requirements again"
+
+echo "cleaning up pip cache to save space"
+pip cache purge
+echo "finished cleaning up pip cache"
+
+echo "."
+echo "."
+echo "."
+echo "!!! BEGINNING DOWNLOAD OF FILES !!!"
+echo "."
+echo "."
+echo "."
+
+echo "removing files and folders to be replaced by huggingface repo"
+rm -rf /workspace/ComfyUI/user/default/comfy.settings.json
+rm -rf /workspace/ComfyUI/comfy_extras/nodes_qwen.py
+
+echo "Downloading repositories from Hugging Face"
+cd /workspace/ComfyUI
+hf auth login --token "$HF_TOKEN"
+hf download LiVeen/MISC --local-dir .
+rm -rf .cache/
+#hf download LiVeen/LTX --local-dir .
+#rm -rf .cache/
+#hf download LiVeen/KLEIN --local-dir .
+#rm -rf .cache/
+
+echo "removing .cache folders to save space"
+cd /workspace
+rm -rf .cache/
+rm -rf .cache/
+rm -rf */.cache/
+rm -rf */.cache/
+rm -rf */*/.cache/
+rm -rf */*/.cache/
+rm -rf */*/*/.cache/
+rm -rf */*/*/.cache/
+rm -rf */*/*/*/.cache/
+rm -rf */*/*/*/.cache/
+rm -rf */*/*/*/*/.cache/
+rm -rf */*/*/*/*/.cache/
+rm -rf */*/*/*/*/*/.cache/
+rm -rf */*/*/*/*/*/.cache/
+rm -rf */*/*/*/*/*/*/.cache/
+rm -rf */*/*/*/*/*/*/.cache/
+rm -rf */*/*/*/*/*/*/*/.cache/
+rm -rf */*/*/*/*/*/*/*/.cache/
+rm -rf */*/*/*/*/*/*/*/*/.cache/
+rm -rf */*/*/*/*/*/*/*/*/.cache/
+
+echo "."
+echo "."
+echo "."
+echo "FINISHED"
+echo "."
+echo "."
+echo "."
