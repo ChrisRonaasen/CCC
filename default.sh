@@ -140,7 +140,7 @@ function provisioning_get_pip_packages() {
 function provisioning_get_nodes() {
     for repo in "${NODES[@]}"; do
         dir="${repo##*/}"
-        path="${COMFYUI_DIR}custom_nodes/${dir}"
+        path="/custom_nodes/${dir}"
         requirements="${path}/requirements.txt torch==2.8 torchvision torchaudio numpy==1.26.4"
         if [[ -d $path ]]; then
             if [[ ${AUTO_UPDATE,,} != "false" ]]; then
