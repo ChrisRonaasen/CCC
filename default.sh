@@ -86,7 +86,7 @@ function provisioning_get_pip_packages() {
 function provisioning_get_nodes() {
     for repo in "${NODES[@]}"; do
         dir="${repo##*/}"
-        path="${COMFYUI_DIR}/custom_nodes/${dir}"
+        path="${COMFYUI_DIR}custom_nodes/${dir}"
         requirements="${path}/requirements.txt"
         if [[ -d $path ]]; then
             if [[ ${AUTO_UPDATE,,} != "false" ]]; then
@@ -183,11 +183,8 @@ fi
 
 echo "BEGINNING COMFYUI SLIM INSTALL SCRIPT"
 
-echo "installing/updating basic tooling"
-pip install -U pip setuptools wheel pip-tools build git
-
-echo "installing huggingface hub"
-pip install huggingface-hub
+echo "installing/updating basic tooling and huggingface hub"
+pip install -U pip setuptools wheel pip-tools build huggingface-hub
 
 echo "logging in to huggingface hub"
 hf auth login --token "$HF_TOKEN"
@@ -319,11 +316,29 @@ rm -rf /workspace/ComfyUI/comfy_extras/nodes_qwen.py
 echo "Downloading repositories from Hugging Face"
 cd /workspace/ComfyUI
 hf auth login --token "$HF_TOKEN"
-hf download LiVeen/MISC --local-dir .
+
+#MISC
+hf download LVMCS/49108215MI --local-dir .
 rm -rf .cache/
-hf download LiVeen/LTX --local-dir .
+
+#MISC-MODELS
+#hf download LVMCS/49108215MM --local-dir .
+#rm -rf .cache/
+
+#LTX
+hf download LVMCS/49108215LT --local-dir .
 rm -rf .cache/
-hf download LiVeen/KLEIN --local-dir .
+
+#KLEIN
+#hf download LVMCS/49108215KL --local-dir .
+#rm -rf .cache/
+
+#WAN
+#hf download LVMCS/49108215WA --local-dir .
+#rm -rf .cache/
+
+#QWEN
+hf download LVMCS/49108215QW --local-dir .
 rm -rf .cache/
 
 echo "removing .cache folders to save space"
