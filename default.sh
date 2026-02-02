@@ -236,7 +236,7 @@ git clone https://github.com/WASasquatch/was-node-suite-comfyui
 git clone https://github.com/djbielejeski/a-person-mask-generator
 git clone https://github.com/Fannovel16/ComfyUI-Frame-Interpolation
 git clone https://github.com/calcuis/gguf
-# git clone https://github.com/pollockjj/ComfyUI-MultiGPU
+git clone https://github.com/pollockjj/ComfyUI-MultiGPU
 git clone https://github.com/1038lab/ComfyUI-QwenVL
 git clone https://github.com/kijai/ComfyUI-SCAIL-Pose
 git clone https://github.com/kijai/ComfyUI-WanAnimatePreprocess/
@@ -271,7 +271,7 @@ pip install -r /workspace/ComfyUI/custom_nodes/was-node-suite-comfyui/requiremen
 pip install -r /workspace/ComfyUI/custom_nodes/a-person-mask-generator/requirements.txt
 pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-Frame-Interpolation/requirements.txt
 pip install -r /workspace/ComfyUI/custom_nodes/gguf/requirements.txt
-# pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-MultiGPU/requirements.txt
+pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-MultiGPU/requirements.txt
 pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-QwenVL/requirements.txt
 pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-SCAIL-Pose/requirements.txt
 pip install -r /workspace/ComfyUI/custom_nodes/ComfyUI-WanAnimatePreprocess/requirements.txt
