@@ -317,29 +317,29 @@ echo "Downloading repositories from Hugging Face"
 cd /workspace/ComfyUI
 hf auth login --token "$HF_TOKEN"
 
-#MISC
+#MI
 hf download LVMCS/49108215MI --local-dir .
 rm -rf .cache/
 
-#MISC-MODELS
-#hf download LVMCS/49108215MM --local-dir .
-#rm -rf .cache/
+#MM
+hf download LVMCS/49108215MM --local-dir .
+rm -rf .cache/
 
-#LTX
+#LT
 hf download LVMCS/49108215LT --local-dir .
 rm -rf .cache/
 
-#KLEIN
-#hf download LVMCS/49108215KL --local-dir .
-#rm -rf .cache/
+#KL
+hf download LVMCS/49108215KL --local-dir .
+rm -rf .cache/
 
-#WAN
+#WA
 #hf download LVMCS/49108215WA --local-dir .
 #rm -rf .cache/
 
-#QWEN
-hf download LVMCS/49108215QW --local-dir .
-rm -rf .cache/
+#QW
+#hf download LVMCS/49108215QW --local-dir .
+#rm -rf .cache/
 
 echo "removing .cache folders to save space"
 cd /workspace
